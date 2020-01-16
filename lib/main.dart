@@ -40,10 +40,10 @@ class Sabor {
 class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = new GlobalKey<FormState>();
-  String observacao, nome, flavor, tamanho;
+  String observacao, nome, flavor, tamanho, _newValue;
+  List bebida = [];
   Sabor selectedSabor;
-  bool aguaVal = false, refriVal = false, sucoVal = false, _validate = false;
-  int selectedRadio, selectedRadioTile;
+  bool _aguaVal = false, _refriVal = false, _sucoVal = false, _validate = false;
 
   List<Sabor> sabores;
   @override
@@ -55,18 +55,6 @@ class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
   setSelectedSabor(Sabor sabor) {
     setState(() {
       selectedSabor = sabor;
-    });
-  }
-
-  setSelectedRadio(int val) {
-    setState(() {
-      selectedRadio = val;
-    });
-  }
-
-  setSelectedRadioTile(int val) {
-    setState(() {
-      selectedRadioTile = val;
     });
   }
 
@@ -100,6 +88,7 @@ class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
       print("Nome do Cliente: $nome");
       print("Sabor da Pizza: $flavor");
       print("Tamanho da Pizza: $tamanho");
+      print("A(s) Bebida(s): $bebida");
       print("Observação: $observacao");
     } else {
       // validation error
@@ -173,31 +162,46 @@ class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
             color: Colors.transparent,
           ),
 
-          RadioListTile(
-            value: 1,
-            groupValue: selectedRadioTile,
-            title: Text("Média"),
-            subtitle: Text("8 Fatias"),
-            onChanged: (val) {
-              setSelectedRadioTile(val);
-              tamanho= ("Média");
-            },
-            activeColor: Colors.red,
-          ),
-          RadioListTile(
-            value: 2,
-            groupValue: selectedRadioTile,
-            title: Text("Grande"),
-            subtitle: Text("10 fatias"),
-            onChanged: (val) {
-              setSelectedRadioTile(val);
-              tamanho= ("Grande");
-            },
-            activeColor: Colors.red,
+
+          Row(
+            children: <Widget>[
+              Flexible(
+                child: RadioListTile<String>(
+                  value: 'Média',
+                  title: Text('Média'),
+                  subtitle: Text('(RS 27,00)'),
+                  groupValue:  _newValue,
+                  onChanged: (value) {
+                    setState(() {
+                      _newValue = value;
+                      tamanho = value;
+                    });
+                  },
+                  activeColor: Colors.red,
+                ),
+              ),
+              Flexible(
+                child: RadioListTile<String>(
+                  value: 'Grande',
+                  title: Text('Grande'),
+                  subtitle: Text('(RS 37,00)'),
+                  groupValue: _newValue,
+                  onChanged: (value) {
+                    setState(() {
+                      _newValue = value;
+                      tamanho = value;
+                    });
+                  },
+                  activeColor: Colors.red,
+                ),
+              ),
+
+            ],
           ),
 
+
           new Divider(
-            height: 15.0,
+            height: 17.0,
             color: Colors.transparent,
           ),
 
@@ -210,79 +214,70 @@ class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
           ),
 
           new Divider(
-            height: 15.0,
+            height: 3.0,
             color: Colors.transparent,
           ),
 
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          new Column(
             children: <Widget>[
               // [Água] checkbox
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text("Água (500ml)"),
-                  Checkbox(
-                    value: aguaVal,
-                    onChanged: (bool value) {
-                      setState(() {
-                        aguaVal = value;
-                      });
-                    },
+              CheckboxListTile(
+                activeColor: Colors.blueAccent,
+                value: _aguaVal,
+                onChanged: (newValue) {
+                  setState(() {
+                    _aguaVal = newValue;
+                    bebida = (['Água']);
+                  });
+                },
+                title: Text('Água',
+                       style: TextStyle(
+                       fontSize: 16.0,
                   ),
-                ],
+                ),
+                subtitle: Text('Mineral 500ml (RS 6,00)'),
               ),
-
               // [Refrigerante] checkbox
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text("Refrigerante (2L)"),
-                  Checkbox(
-                    value: refriVal,
-                    onChanged: (bool value) {
-                      setState(() {
-                        refriVal = value;
-                      });
-                    },
+              CheckboxListTile(
+                activeColor: Colors.blueAccent,
+                value: _refriVal,
+                onChanged: (newValue) {
+                  setState(() {
+                    _refriVal = newValue;
+                    bebida = (['Refrigerante']);
+                  });
+                },
+                title: Text('Refrigerante',
+                  style: TextStyle(
+                    fontSize: 16.0,
                   ),
-                ],
+                ),
+                subtitle: Text('Coca 2L (RS 10,00)'),
               ),
               // [Suco] checkbox
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text("Suco (500ml)"),
-                  Checkbox(
-                    value: sucoVal,
-                    onChanged: (bool value) {
-                      setState(() {
-                        sucoVal = value;
-                      });
-                    },
+              CheckboxListTile(
+                activeColor: Colors.blueAccent,
+                value: _sucoVal,
+                onChanged: (newValue) {
+                  setState(() {
+                    _sucoVal = newValue;
+                    bebida = (['Suco']);
+                  });
+                },
+                title: Text('Suco',
+                  style: TextStyle(
+                    fontSize: 16.0,
                   ),
-                ],
+                ),
+                subtitle: Text('Laranja 500ml (RS 8,00)'),
               ),
             ],
           ),
 
-              new Divider(
-            height: 15.0,
-            color: Colors.transparent,
-          ),
-
-        new TextFormField(
-          decoration: new InputDecoration(labelText: 'Observação'),
-          maxLength: 52,
-          validator: validateString,
-          onSaved: (String val) {
-            observacao = val;
-          },
-        ),
-
         new Padding(
           padding: const EdgeInsets.only(top: 20.0),
         ),
+
         new RaisedButton(
           child: new Text(
             "enviar",
@@ -290,11 +285,15 @@ class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
         ),
           color: Colors.blue,
           onPressed: _submit,
-        )
-    ],
+          ),
+        new Divider(
+           height: 10.0,
+           color: Colors.transparent,
+          ),
+        ],
+      ),
     ),
-    ),
-        ));
+  ));
   }
 }
 
