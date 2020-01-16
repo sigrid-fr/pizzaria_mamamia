@@ -1,111 +1,308 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(new PizzariaMamamia());
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+//Classe da Aplicação
+class PizzariaMamamia extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+  Widget build (BuildContext context) {
+    return new MaterialApp(
+      title: "Pizzaria Mama Mia",
+      theme: new ThemeData(primarySwatch: Colors.teal),
+      home: new PaginaPrincipalPage());
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
+//Classe da Página Principal
+class PaginaPrincipalPage extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<StatefulWidget> createState() => new _PaginaPrincipalState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+// Classe sabor dos RadioButtons
+class Sabor {
+  int saborId;
+  String sabor;
+  String ingredientes;
 
-  void _incrementCounter() {
+  Sabor({this.saborId, this.sabor, this.ingredientes});
+
+  static List<Sabor> getSabores() {
+    return <Sabor>[
+      Sabor(saborId: 1, sabor: "Calabresa", ingredientes: "Molho zone, queijo, calabresa, cebola, azeitona, orégano"),
+      Sabor(saborId: 2, sabor: "Frango", ingredientes: "Molho zone, queijo, frango, milho, azeitona, orégano"),
+      Sabor(saborId: 3, sabor: "Pepperoni", ingredientes: "Molho zone, queijo, pepperoni, cebola, azeitona, orégano"),
+    ];
+  }
+}
+
+//Classe Estado da Página Principal
+class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
+  final scaffoldKey = new GlobalKey<ScaffoldState>();
+  final formKey = new GlobalKey<FormState>();
+  String observacao, nome, flavor, tamanho;
+  Sabor selectedSabor;
+  bool aguaVal = false, refriVal = false, sucoVal = false, _validate = false;
+  int selectedRadio, selectedRadioTile;
+
+  List<Sabor> sabores;
+  @override
+  void initState() {
+    super.initState();
+    sabores = Sabor.getSabores();
+  }
+
+  setSelectedSabor(Sabor sabor) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      selectedSabor = sabor;
     });
   }
 
+  setSelectedRadio(int val) {
+    setState(() {
+      selectedRadio = val;
+    });
+  }
+
+  setSelectedRadioTile(int val) {
+    setState(() {
+      selectedRadioTile = val;
+    });
+  }
+
+  List<Widget> createRadioListSabores() {
+    List<Widget> widgets = [];
+    for (Sabor sabor in sabores) {
+      widgets.add(
+        RadioListTile(
+          value: sabor,
+          groupValue: selectedSabor,
+          title: Text(sabor.sabor),
+          subtitle: Text(sabor.ingredientes),
+          onChanged: (currentSabor) {
+            setSelectedSabor(currentSabor);
+            flavor = "${currentSabor.sabor}";
+          },
+          selected: selectedSabor == sabor,
+          activeColor: Colors.green,
+        ),
+      );
+    }
+    return widgets;
+  }
+
+
+  //Botão enviar
+  void _submit() {
+    if (formKey.currentState.validate()) {
+      // No any error in validation
+      formKey.currentState.save();
+      print("Nome do Cliente: $nome");
+      print("Sabor da Pizza: $flavor");
+      print("Tamanho da Pizza: $tamanho");
+      print("Observação: $observacao");
+    } else {
+      // validation error
+      setState(() {
+        _validate = true;
+      });
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
+    return new Scaffold(
+        key: scaffoldKey,
+        appBar: new AppBar(
+          title: new Text("Mama Mia Pizzaria"),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+        body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+
+        child: new Form(
+        key: formKey,
+        child: new Column(
+        children: <Widget>[
+        new TextFormField(
+          decoration: new InputDecoration(labelText: 'Nome do Cliente'),
+          maxLength: 32,
+          validator: validateString,
+          onSaved: (String val) {
+            nome = val;
+          },
+        ),
+
+        new Divider(
+            height: 5.0,
+            color: Colors.transparent,
+          ),
+
+        new Text(
+            'Selecione o Sabor',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
+            )
+          ),
+
+          new Divider(
+            height: 15.0,
+            color: Colors.transparent,
+          ),
+
+        new Column(
+              children: createRadioListSabores(),
+        ),
+
+        new Divider(
+            height: 20.0,
+            color: Colors.transparent,
+          ),
+
+          new Text(
+              'Selecione o tamanho',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
+              )
+          ),
+
+          new Divider(
+            height: 15.0,
+            color: Colors.transparent,
+          ),
+
+          RadioListTile(
+            value: 1,
+            groupValue: selectedRadioTile,
+            title: Text("Média"),
+            subtitle: Text("8 Fatias"),
+            onChanged: (val) {
+              setSelectedRadioTile(val);
+              tamanho= ("Média");
+            },
+            activeColor: Colors.red,
+          ),
+          RadioListTile(
+            value: 2,
+            groupValue: selectedRadioTile,
+            title: Text("Grande"),
+            subtitle: Text("10 fatias"),
+            onChanged: (val) {
+              setSelectedRadioTile(val);
+              tamanho= ("Grande");
+            },
+            activeColor: Colors.red,
+          ),
+
+          new Divider(
+            height: 15.0,
+            color: Colors.transparent,
+          ),
+
+          new Text(
+              'Bebidas',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
+              )
+          ),
+
+          new Divider(
+            height: 15.0,
+            color: Colors.transparent,
+          ),
+
+          new Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              // [Água] checkbox
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text("Água (500ml)"),
+                  Checkbox(
+                    value: aguaVal,
+                    onChanged: (bool value) {
+                      setState(() {
+                        aguaVal = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+
+              // [Refrigerante] checkbox
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text("Refrigerante (2L)"),
+                  Checkbox(
+                    value: refriVal,
+                    onChanged: (bool value) {
+                      setState(() {
+                        refriVal = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              // [Suco] checkbox
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text("Suco (500ml)"),
+                  Checkbox(
+                    value: sucoVal,
+                    onChanged: (bool value) {
+                      setState(() {
+                        sucoVal = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+              new Divider(
+            height: 15.0,
+            color: Colors.transparent,
+          ),
+
+        new TextFormField(
+          decoration: new InputDecoration(labelText: 'Observação'),
+          maxLength: 52,
+          validator: validateString,
+          onSaved: (String val) {
+            observacao = val;
+          },
+        ),
+
+        new Padding(
+          padding: const EdgeInsets.only(top: 20.0),
+        ),
+        new RaisedButton(
+          child: new Text(
+            "enviar",
+            style: new TextStyle(color: Colors.white),
+        ),
+          color: Colors.blue,
+          onPressed: _submit,
+        )
+    ],
+    ),
+    ),
+        ));
   }
+}
+
+String validateString(String value) {
+  String patttern = r'(^[a-zA-Z ]*$)';
+  RegExp regExp = new RegExp(patttern);
+  if (!regExp.hasMatch(value)) {
+    return "O campo observação deve ser de a-z and A-Z";
+  }
+  return null;
 }
