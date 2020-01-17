@@ -40,8 +40,8 @@ class Sabor {
 class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = new GlobalKey<FormState>();
-  String observacao, nome, flavor, tamanho, _newValue;
-  List bebida = [];
+  String nome, flavor, tamanho, _newValue;
+  List <String> bebida = [];
   Sabor selectedSabor;
   bool _aguaVal = false, _refriVal = false, _sucoVal = false, _validate = false;
 
@@ -79,25 +79,36 @@ class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
     return widgets;
   }
 
-
-  //Botão enviar
+  //Botão enviar e validação
   void _submit() {
-    if (formKey.currentState.validate()) {
-      // No any error in validation
-      formKey.currentState.save();
-      print("Nome do Cliente: $nome");
-      print("Sabor da Pizza: $flavor");
-      print("Tamanho da Pizza: $tamanho");
-      print("A(s) Bebida(s): $bebida");
-      print("Observação: $observacao");
-    } else {
-      // validation error
-      setState(() {
-        _validate = true;
-      });
-    }
-  }
+    if (_newValue == null) {
+      // Quando nenhum tamanho for selecionado
+      _showSnackBar('Por favor, selecione um tamanho!');
+    } else if (selectedSabor == null) {
+      // Se nenhum dos sabores forem selecionados
+      _showSnackBar("Por favor, selecione um sabor!");
+    } else if (formKey.currentState.validate()) {
+          // Se não forem encontrados erros na validação
+          formKey.currentState.save();
+          print("Nome do Cliente: $nome");
+          print("Sabor da Pizza: $flavor");
+          print("Tamanho da Pizza: $tamanho");
+          print("A(s) Bebida(s): $bebida");
+      } else {
+        // Em caso de erro de validação, o campo bebidas não é obrigatório
+        setState(() {
+          _validate = true;
+        });
+      }
+   }
 
+//Mostra mensagem se nenhum sabor ou tamanho forem selecionados
+  void _showSnackBar(message) {
+    final snackBar = new SnackBar(
+      content: new Text(message),
+    );
+    scaffoldKey.currentState.showSnackBar(snackBar);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +127,7 @@ class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
         new TextFormField(
           decoration: new InputDecoration(labelText: 'Nome do Cliente'),
           maxLength: 32,
-          validator: validateString,
+          validator: validateNome,
           onSaved: (String val) {
             nome = val;
           },
@@ -236,6 +247,7 @@ class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
                   ),
                 ),
                 subtitle: Text('Mineral 500ml (RS 6,00)'),
+                controlAffinity: ListTileControlAffinity.platform,
               ),
               // [Refrigerante] checkbox
               CheckboxListTile(
@@ -253,6 +265,7 @@ class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
                   ),
                 ),
                 subtitle: Text('Coca 2L (RS 10,00)'),
+                controlAffinity: ListTileControlAffinity.platform,
               ),
               // [Suco] checkbox
               CheckboxListTile(
@@ -270,6 +283,7 @@ class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
                   ),
                 ),
                 subtitle: Text('Laranja 500ml (RS 8,00)'),
+                controlAffinity: ListTileControlAffinity.platform,
               ),
             ],
           ),
@@ -297,11 +311,14 @@ class _PaginaPrincipalState extends State<PaginaPrincipalPage> {
   }
 }
 
-String validateString(String value) {
+String validateNome(String value) {
   String patttern = r'(^[a-zA-Z ]*$)';
   RegExp regExp = new RegExp(patttern);
-  if (!regExp.hasMatch(value)) {
-    return "O campo observação deve ser de a-z and A-Z";
+  if (value.length == 0) {
+    return 'O nome é obrigatório!';
+  }
+  else if (!regExp.hasMatch(value)) {
+    return "O nome deve ser de a-z and A-Z";
   }
   return null;
 }
